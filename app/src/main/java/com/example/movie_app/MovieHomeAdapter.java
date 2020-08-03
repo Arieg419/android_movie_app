@@ -1,6 +1,9 @@
 package com.example.movie_app;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,9 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.movie_app.model.PopularMoviesModel;
+import com.example.movie_app.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+
+import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
 public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
     private static final String LOG_TAG = MovieHomeAdapter .class.getSimpleName();
@@ -20,12 +26,14 @@ public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
         super(context, 0, popularMovies);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Check if the existing view is being reused, otherwise inflate the view
         View listItemView = convertView;
+        Context context = getContext();
         if(listItemView == null) {
-            listItemView = LayoutInflater.from(getContext()).inflate(
+            listItemView = LayoutInflater.from(context).inflate(
                     R.layout.movie_poster_item, parent, false);
         }
 
@@ -43,10 +51,25 @@ public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
 
         // Set movie poster
         ImageView moviePoster = (ImageView) listItemView.findViewById(R.id.imageview_movie_poster);
-        String imgPath = listItemView.getContext().getResources().getString(R.string.api_image_base_path) + currentMovie.posterPath.substring(1);
+        String imgPath = getMovieDetailPosterPath(context, currentMovie.posterPath, 400);
         Picasso.get().load(imgPath).into(moviePoster);
+
+        // Set movie item click listener
+        listItemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Bundle detailBundle = new Bundle();
+                detailBundle.putString(MovieDetailFragment.TITLE, currentMovie.title);
+                detailBundle.putString(MovieDetailFragment.OVERVIEW, currentMovie.overview);
+                detailBundle.putString(MovieDetailFragment.RELEASE_DATE, currentMovie.releaseDate);
+                detailBundle.putString(MovieDetailFragment.RATING, currentMovie.voteAverage.toString());
+                detailBundle.putString(MovieDetailFragment.POSTER_PATH, currentMovie.posterPath);
+                ((MovieHomeActivity) context).setMovieDetailFragment(detailBundle);
+            }
+        });
 
         return listItemView;
     }
+
 
 }
