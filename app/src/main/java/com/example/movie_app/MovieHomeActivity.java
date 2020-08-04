@@ -1,6 +1,5 @@
 package com.example.movie_app;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -8,9 +7,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.Toolbar;
-
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
 
 interface FragmentSwapper {
@@ -25,6 +23,7 @@ public class MovieHomeActivity extends AppCompatActivity implements FragmentSwap
     private static final String SORT_BY_TITLE = "TITLE";
     private static final String SORT_BY_RATING = "RATING";
 
+    private Toolbar mToolbar;
     private MovieHomeFragment mMovieHomeFragment;
     private MovieDetailFragment mMovieDetailFragment;
 
@@ -33,8 +32,9 @@ public class MovieHomeActivity extends AppCompatActivity implements FragmentSwap
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        // Toolbar init
+        mToolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (mMovieHomeFragment == null) {
@@ -88,7 +88,20 @@ public class MovieHomeActivity extends AppCompatActivity implements FragmentSwap
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_holder, mMovieDetailFragment, MOVIE_DETAIL_FRAGMENT);
         fragmentTransaction.commit();
-        hideToolbar();
+
+        // toolbar setup
+        showToolbarBackButton();
+        mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setMovieHomeFragment();
+            }
+        });
+        mToolbar.setTitle(bundle.getString(MovieDetailFragment.TITLE));
+        Menu menu = mToolbar.getMenu();
+        menu.findItem(R.id.alphabetical_sort).setVisible(false);
+        menu.findItem(R.id.rating_sort).setVisible(false);
     }
 
     public void setMovieHomeFragment() {
@@ -98,12 +111,26 @@ public class MovieHomeActivity extends AppCompatActivity implements FragmentSwap
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fragment_holder, mMovieHomeFragment, MOVIE_HOME_FRAGMENT);
         fragmentTransaction.commit();
+        hideToolbarBackButton();
+        mToolbar.setTitle(R.string.app_name);
+        Menu menu = mToolbar.getMenu();
+        menu.findItem(R.id.alphabetical_sort).setVisible(true);
+        menu.findItem(R.id.rating_sort).setVisible(true);
         showToolbar();
     }
 
-    public void hideToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setVisibility(View.GONE);
+    public void showToolbarBackButton() {
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+    }
+
+    public void hideToolbarBackButton() {
+        if (getSupportActionBar() != null){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+        }
     }
 
     public void showToolbar() {

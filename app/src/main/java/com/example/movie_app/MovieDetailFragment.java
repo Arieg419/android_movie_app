@@ -1,7 +1,7 @@
 package com.example.movie_app;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +12,10 @@ import androidx.fragment.app.Fragment;
 
 import com.squareup.picasso.Picasso;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
@@ -66,22 +70,23 @@ public class MovieDetailFragment extends Fragment {
         mMovieTitle.setText(b.getString(TITLE));
 
         // Set release date
-        mMovieReleaseDate.setText(b.getString(RELEASE_DATE));
+        String releaseDate = b.getString(RELEASE_DATE);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+        try {
+            assert releaseDate != null;
+            Date date = simpleDateFormat.parse(releaseDate);
+            String day          = (String) DateFormat.format("dd",   date); // 20
+            String month = (String) DateFormat.format("MMMM",  date); // Jun
+            String year         = (String) DateFormat.format("yyyy", date); // 2013
+            mMovieReleaseDate.setText("Release: " + month + " " + day + ", " + year);
+        } catch (ParseException e) {
+            mMovieReleaseDate.setText(releaseDate);
+        }
 
         // Set rating
-        mMovieRating.setText(b.getString(RATING) + "/10");
+        mMovieRating.setText("Rating: " + b.getString(RATING) + "/10");
 
         // Set overview
         mMovieOverview.setText(b.getString(OVERVIEW));
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 }
