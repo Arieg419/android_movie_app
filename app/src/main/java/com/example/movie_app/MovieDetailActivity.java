@@ -3,6 +3,7 @@ package com.example.movie_app;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
@@ -32,7 +33,7 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         // toolbar setup
         showToolbarBackButton();
-        mToolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24);
+        mToolbar.setTitleMarginStart(0);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
