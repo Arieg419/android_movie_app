@@ -1,4 +1,4 @@
-package com.example.movie_app;
+package com.example.movie_app.fragments;
 
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.movie_app.R;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -41,7 +42,7 @@ public class MovieDetailFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        Bundle b = getArguments();
+        Bundle b = this.getArguments();
         assert(b != null);
 
         // Get views

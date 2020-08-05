@@ -3,6 +3,7 @@ package com.example.movie_app.api;
 import com.example.movie_app.model.PopularMoviesModel;
 
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 

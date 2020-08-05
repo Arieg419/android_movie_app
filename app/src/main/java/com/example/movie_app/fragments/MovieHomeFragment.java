@@ -1,6 +1,5 @@
-package com.example.movie_app;
+package com.example.movie_app.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +8,8 @@ import android.widget.GridView;
 
 import androidx.fragment.app.Fragment;
 
+import com.example.movie_app.R;
+import com.example.movie_app.adapter.MovieHomeAdapter;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
 import com.example.movie_app.model.PopularMoviesModel;
@@ -35,11 +36,6 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mGridView = (GridView) Objects.requireNonNull(getActivity()).findViewById(R.id.movies_grid);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
     }
 
     public void setMovieGridAdapter(ArrayList<PopularMoviesModel.Result> movies) {
@@ -69,6 +65,7 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
         super.onCreate(savedInstanceState);
         ApiInterface apiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
         Call<PopularMoviesModel> call = apiInterface.doGetPopularMovieList(getContext().getResources().getString(R.string.api_key));
+        // Async request with callback invocation
         call.enqueue(new Callback<PopularMoviesModel>() {
             @Override
             public void onResponse(Call<PopularMoviesModel> call, Response<PopularMoviesModel> response) {
@@ -85,15 +82,5 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
                 call.cancel();
             }
         });
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
     }
 }

@@ -1,8 +1,9 @@
-package com.example.movie_app;
+package com.example.movie_app.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +12,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.movie_app.MovieDetailActivity;
+import com.example.movie_app.fragments.MovieDetailFragment;
+import com.example.movie_app.MovieHomeActivity;
+import com.example.movie_app.R;
 import com.example.movie_app.model.PopularMoviesModel;
-import com.example.movie_app.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -20,7 +24,6 @@ import java.util.ArrayList;
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
 public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
-    private static final String LOG_TAG = MovieHomeAdapter .class.getSimpleName();
 
     public MovieHomeAdapter(Activity context, ArrayList<PopularMoviesModel.Result> popularMovies) {
         super(context, 0, popularMovies);
@@ -64,7 +67,9 @@ public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
                 detailBundle.putString(MovieDetailFragment.RELEASE_DATE, currentMovie.releaseDate);
                 detailBundle.putString(MovieDetailFragment.RATING, currentMovie.voteAverage.toString());
                 detailBundle.putString(MovieDetailFragment.POSTER_PATH, currentMovie.posterPath);
-                ((MovieHomeActivity) context).setMovieDetailFragment(detailBundle);
+                Intent movieDetailIntent = new Intent((MovieHomeActivity) getContext(), MovieDetailActivity.class);
+                movieDetailIntent.putExtras(detailBundle);
+                ((MovieHomeActivity) getContext()).startActivity(movieDetailIntent);
             }
         });
 
