@@ -1,6 +1,5 @@
 package com.example.movie_app.fragments;
 
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,12 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.movie_app.R;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
-import com.example.movie_app.recylcerview.MovieHomeAdapter;
 import com.example.movie_app.model.PopularMoviesModel;
+import com.example.movie_app.recylcerview.MovieHomeAdapter;
 import com.example.movie_app.sort.SortableList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 
 import retrofit2.Call;
@@ -26,6 +24,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MovieHomeFragment extends Fragment implements SortableList.SortableMovieAdapter {
+    ApiInterface mApiInterface;
     MovieHomeAdapter mMovieHomeAdapter;
     ArrayList<PopularMoviesModel.Result> mPopularMovies;
     RecyclerView mGridView;
@@ -47,12 +46,12 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     }
 
     public void sortByRating() {
-        Collections.sort(mPopularMovies, new SortableList.MovieRatingSorter());
+        fetchMovieData(mApiInterface.doGetTopRatedMovieList());
         updateAdapter();
     }
 
     public void sortByTitle() {
-        Collections.sort(mPopularMovies, new SortableList.MovieTitleSorter());
+        fetchMovieData(mApiInterface.doGetPopularMovieList());
         updateAdapter();
     }
 
@@ -64,8 +63,11 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ApiInterface apiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
-        Call<PopularMoviesModel> call = apiInterface.doGetPopularMovieList(getContext().getResources().getString(R.string.api_key));
+        mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
+        fetchMovieData(mApiInterface.doGetPopularMovieList());
+    }
+
+    private void fetchMovieData(Call<PopularMoviesModel> call) {
         // Async request with callback invocation
         call.enqueue(new Callback<PopularMoviesModel>() {
             @Override
@@ -83,5 +85,6 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
                 call.cancel();
             }
         });
+
     }
 }

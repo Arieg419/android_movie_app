@@ -47,7 +47,7 @@ public class MovieHomeActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         MovieHomeFragment movieHomeFragment = (MovieHomeFragment) getSupportFragmentManager().findFragmentByTag(MOVIE_HOME_FRAGMENT);
         switch(item.getItemId()){
-            case R.id.alphabetical_sort:
+            case R.id.popular_sort:
                 sort(SortableList.SORT_BY_TITLE, movieHomeFragment);
                 break;
 
