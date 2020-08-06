@@ -2,8 +2,7 @@
     <string name="app_name">Popular Movies</string>
     <string name="api_base_path">http://api.themoviedb.org/</string>
     <string name="api_image_base_path">https://image.tmdb.org/t/p/w</string>
-    <string name="api_key">8a293ef4857e99fc22c0e40a4fbbadc2</string>
-    <string name="api_read_access_token">eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4YTI5M2VmNDg1N2U5OWZjMjJjMGU0MGE0ZmJiYWRjMiIsInN1YiI6IjVmMjJhYmM5Y2FhY2EyMDAzMzcyMWMyNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.7j3bFPIMowdFzHPcaU1iulJmFOX-tURxQQxc8WPjhGg</string>
+    <string name="api_key">YOUR_KEY_HERE</string>
     <string name="sort_by_top_rated">Sort by Top Rated</string>
     <string name="sort_by_popularity">Sort by Most Popular</string>
     <string name="poster_img_of_movie">Poster img of movie</string>
