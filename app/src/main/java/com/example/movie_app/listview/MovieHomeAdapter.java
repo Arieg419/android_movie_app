@@ -1,4 +1,4 @@
-package com.example.movie_app.adapter;
+package com.example.movie_app.listview;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

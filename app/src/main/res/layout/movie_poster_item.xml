@@ -3,7 +3,7 @@
     android:id="@+id/movie_item_container"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:padding="16dp"
     android:layout_marginTop="10dp"
     >
@@ -15,7 +15,8 @@
             android:id="@+id/imageview_movie_poster"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/this_is_a_movie_poster" />
     </FrameLayout>
     <TextView
         android:id="@+id/textview_movie_name"

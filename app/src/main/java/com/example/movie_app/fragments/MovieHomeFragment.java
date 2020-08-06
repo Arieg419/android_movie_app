@@ -1,17 +1,19 @@
 package com.example.movie_app.fragments;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_app.R;
-import com.example.movie_app.adapter.MovieHomeAdapter;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
+import com.example.movie_app.recylcerview.MovieHomeAdapter;
 import com.example.movie_app.model.PopularMoviesModel;
 import com.example.movie_app.sort.SortableList;
 
@@ -26,21 +28,22 @@ import retrofit2.Response;
 public class MovieHomeFragment extends Fragment implements SortableList.SortableMovieAdapter {
     MovieHomeAdapter mMovieHomeAdapter;
     ArrayList<PopularMoviesModel.Result> mPopularMovies;
-    GridView mGridView;
+    RecyclerView mGridView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.grid_view, parent, false);
+        return inflater.inflate(R.layout.recycler_view, parent, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        mGridView = (GridView) Objects.requireNonNull(getActivity()).findViewById(R.id.movies_grid);
+        mGridView = (RecyclerView) Objects.requireNonNull(getActivity()).findViewById(R.id.movies_recycler_view);
     }
 
     public void setMovieGridAdapter(ArrayList<PopularMoviesModel.Result> movies) {
-        mMovieHomeAdapter = new MovieHomeAdapter(getActivity(), movies);
-        mGridView.setAdapter(mMovieHomeAdapter );
+        mMovieHomeAdapter = new MovieHomeAdapter(movies);
+        mGridView.setAdapter(mMovieHomeAdapter);
+        mGridView.setLayoutManager(new GridLayoutManager(getContext(), 2));
     }
 
     public void sortByRating() {
@@ -56,8 +59,6 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     private void updateAdapter() {
         setMovieGridAdapter(mPopularMovies);
         mMovieHomeAdapter.notifyDataSetChanged();
-        mGridView.invalidateViews();
-        mGridView.refreshDrawableState();
     }
 
     @Override
