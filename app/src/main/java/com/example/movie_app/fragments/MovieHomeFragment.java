@@ -64,27 +64,33 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
+        System.out.println("Omer -> movieHome on create");
         fetchMovieData(mApiInterface.doGetPopularMovieList());
+        System.out.println("Omer -> movieHome on create after");
     }
 
     private void fetchMovieData(Call<PopularMoviesModel> call) {
+        System.out.println("Omer -> fetch movie data 0");
         // Async request with callback invocation
         call.enqueue(new Callback<PopularMoviesModel>() {
             @Override
             public void onResponse(Call<PopularMoviesModel> call, Response<PopularMoviesModel> response) {
+                System.out.println("Omer -> processing request!");
                 PopularMoviesModel resource = response.body();
                 if (resource == null) {
+                    System.out.println("Omer -> resp on movie home frag is null");
                     return;
                 }
+                System.out.println("Omer -> resp on movie home frag is not null");
                 mPopularMovies = (ArrayList<PopularMoviesModel.Result>) resource.results;
                 setMovieGridAdapter(mPopularMovies);
             }
 
             @Override
             public void onFailure(Call<PopularMoviesModel> call, Throwable t) {
+                System.out.println("Omer -> onFailuerMovieHome api " + t.toString());
                 call.cancel();
             }
         });
-
     }
 }

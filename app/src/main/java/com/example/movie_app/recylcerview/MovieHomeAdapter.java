@@ -16,16 +16,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.movie_app.MovieDetailActivity;
 import com.example.movie_app.MovieHomeActivity;
 import com.example.movie_app.R;
+import com.example.movie_app.api.ApiInterface;
 import com.example.movie_app.fragments.MovieDetailFragment;
+import com.example.movie_app.model.MovieVideosModel;
 import com.example.movie_app.model.PopularMoviesModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
 public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.ViewHolder>{
     Context mContext;
+    ApiInterface mApiInterface;
     List<PopularMoviesModel.Result> mPopularMovies;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -33,6 +40,7 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
         public TextView movieTitle;
         public TextView movieRating;
         public ImageView moviePoster;
+        public int movieId;
 
         public ViewHolder(View view) {
             super(view);
@@ -72,6 +80,9 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
         // Get current movie
         PopularMoviesModel.Result movie = mPopularMovies.get(position);
 
+        // Set movie id
+        holder.movieId = movie.id;
+
         // Set movie title
         holder.movieTitle.setText(movie.title);
 
@@ -94,7 +105,30 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
                 detailBundle.putString(MovieDetailFragment.POSTER_PATH, movie.posterPath);
                 Intent movieDetailIntent = new Intent((MovieHomeActivity) mContext, MovieDetailActivity.class);
                 movieDetailIntent.putExtras(detailBundle);
+                mApiInterface.getTrailers(Long.valueOf(movie.id));
                 ((MovieHomeActivity) mContext).startActivity(movieDetailIntent);
+            }
+        });
+    }
+
+    private void fetchMovieData(Call<MovieVideosModel> call) {
+        // Async request with callback invocation
+        call.enqueue(new Callback<MovieVideosModel>() {
+            @Override
+            public void onResponse(Call<MovieVideosModel> call, Response<MovieVideosModel> response) {
+                MovieVideosModel result = response.body();
+                if (result == null) {
+                    return;
+                }
+                List<MovieVideosModel> trailers = result.videos;
+                for(MovieVideosModel mv: trailers) {
+                    System.out.println("Omer is here with title: " + mv.name + " key: " + mv.key);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieVideosModel> call, Throwable t) {
+                call.cancel();
             }
         });
     }
