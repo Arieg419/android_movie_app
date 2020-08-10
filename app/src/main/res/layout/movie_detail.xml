@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/movie_detail_container"
-    android:orientation="vertical"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbarFadeDuration="0"
     >
 
-    <!--    Hero image-->
-    <ImageView
-        android:id="@+id/movie_detail_poster"
-        android:layout_width="match_parent"
-        android:layout_height="250dp"
-        android:scaleType="fitXY"
-        android:contentDescription="@string/poster_image_for_movie" />
+<LinearLayout
+    android:id="@+id/movie_detail_container"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
 
     <!--    Meta data -->
     <include layout="@layout/movie_detail_meta_data" />
@@ -23,4 +22,8 @@
     <!--    Trailers -->
     <include layout="@layout/movie_detail_trailer" />
 
+    <!--    Reviews -->
+    <include layout="@layout/movie_detail_review" />
+
 </LinearLayout>
+</ScrollView>

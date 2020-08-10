@@ -25,10 +25,8 @@ public class ApiClient {
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        NetworkFlipperPlugin networkFlipperPlugin = new NetworkFlipperPlugin();
         OkHttpClient.Builder client =
-                new OkHttpClient.Builder()
-                .addNetworkInterceptor(new FlipperOkhttpInterceptor(networkFlipperPlugin));
+                new OkHttpClient.Builder();
         client.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {

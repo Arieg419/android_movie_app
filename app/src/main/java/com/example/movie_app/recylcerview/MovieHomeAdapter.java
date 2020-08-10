@@ -108,7 +108,6 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
                 detailBundle.putLong(MovieDetailFragment.MOVIE_ID, movie.id);
                 Intent movieDetailIntent = new Intent((MovieHomeActivity) mContext, MovieDetailActivity.class);
                 movieDetailIntent.putExtras(detailBundle);
-                mApiInterface = ApiClient.getClient(Objects.requireNonNull(mContext)).create(ApiInterface.class);
                 ((MovieHomeActivity) mContext).startActivity(movieDetailIntent);
             }
         });

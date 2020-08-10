@@ -89,7 +89,6 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     }
 
     private void fetchMovieData(Call<PopularMoviesModel> call) {
-        System.out.println("Omer -> fetch movie data 0");
         // Async request with callback invocation
         call.enqueue(new Callback<PopularMoviesModel>() {
             @Override

@@ -1,5 +1,6 @@
 package com.example.movie_app.api;
 
+import com.example.movie_app.model.MovieReviewsModel;
 import com.example.movie_app.model.MovieVideosModel;
 import com.example.movie_app.model.PopularMoviesModel;
 
@@ -19,5 +20,5 @@ public interface ApiInterface {
     Call<MovieVideosModel> getTrailers(@Path("id") Long id);
 
     @GET("/3/movie/{id}/reviews")
-    Call<PopularMoviesModel> getReviews(@Path("id") Long id);
+    Call<MovieReviewsModel> getReviews(@Path("id") Long id);
 }

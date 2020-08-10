@@ -10,12 +10,15 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_app.R;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
+import com.example.movie_app.model.MovieReviewsModel;
 import com.example.movie_app.model.MovieVideosModel;
+import com.example.movie_app.recylcerview.MovieReviewAdapter;
 import com.example.movie_app.recylcerview.MovieTrailerAdapter;
 import com.squareup.picasso.Picasso;
 
@@ -41,15 +44,17 @@ public class MovieDetailFragment extends Fragment {
     public static final String MOVIE_ID = "MOVIE_ID";
 
     ApiInterface mApiInterface;
-    ImageView mMoviePoster;
     ImageView mMiniPoster;
     TextView mMovieTitle;
     TextView mMovieReleaseDate;
     TextView mMovieRating;
     TextView mMovieOverview;
     List<MovieVideosModel> mTrailers;
+    List<MovieReviewsModel> mReviews;
     MovieTrailerAdapter movieTrailerAdapter;
+    MovieReviewAdapter movieReviewAdapter;
     RecyclerView mMovieTrailerRecyclerView;
+    RecyclerView mMovieReviewRecyclerView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,10 +63,16 @@ public class MovieDetailFragment extends Fragment {
         // Get args
         Bundle b = this.getArguments();
         assert(b != null);
+        Long movieId = b.getLong(MOVIE_ID);
+
+        // Get http client
+        mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
 
         // Fetch trailer data
-        mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
-        fetchMovieData(mApiInterface.getTrailers(b.getLong(MOVIE_ID)));
+        fetchTrailerData(mApiInterface.getTrailers(movieId));
+
+        // Fetch review data
+        fetchReviewData(mApiInterface.getReviews(movieId));
     }
 
     @Override
@@ -75,26 +86,17 @@ public class MovieDetailFragment extends Fragment {
         assert(b != null);
 
         // Get views
-        mMoviePoster = view.findViewById(R.id.movie_detail_poster);
         mMiniPoster = view.findViewById(R.id.movie_detail_mini_poster);
         mMovieTitle = view.findViewById(R.id.movie_detail_title);
         mMovieReleaseDate = view.findViewById(R.id.movie_detail_release_date);
         mMovieRating = view.findViewById(R.id.movie_detail_rating);
         mMovieOverview = view.findViewById(R.id.movie_detail_overview);
         mMovieTrailerRecyclerView = view.findViewById(R.id.movie_trailer_recycler_view);
-
-        // Set movie poster
-        Picasso.get()
-                .load(getMovieDetailPosterPath(Objects.requireNonNull(getContext()), Objects.requireNonNull(b.getString(POSTER_PATH)), 500))
-                .fit()
-                .centerCrop()
-                .into(mMoviePoster);
+        mMovieReviewRecyclerView = view.findViewById(R.id.movie_reviews_recycler_view);
 
         // Set mini poster
         Picasso.get()
-                .load(getMovieDetailPosterPath(Objects.requireNonNull(getContext()), Objects.requireNonNull(b.getString(POSTER_PATH)), 200))
-                .fit()
-                .centerCrop()
+                .load(getMovieDetailPosterPath(Objects.requireNonNull(getContext()), Objects.requireNonNull(b.getString(POSTER_PATH)), 400))
                 .into(mMiniPoster);
 
         // Set title
@@ -121,7 +123,7 @@ public class MovieDetailFragment extends Fragment {
         mMovieOverview.setText(b.getString(OVERVIEW));
     }
 
-    private void fetchMovieData(Call<MovieVideosModel> call) {
+    private void fetchTrailerData(Call<MovieVideosModel> call) {
         // Async request with callback invocation
         call.enqueue(new Callback<MovieVideosModel>() {
             @Override
@@ -131,17 +133,35 @@ public class MovieDetailFragment extends Fragment {
                     return;
                 }
                 mTrailers = result.videos;
-                for(MovieVideosModel mv: mTrailers) {
-                    System.out.println("Omer is here with title: " + mv.name + " key: " + mv.key);
-                }
-
                 movieTrailerAdapter = new MovieTrailerAdapter(mTrailers);
                 mMovieTrailerRecyclerView.setAdapter(movieTrailerAdapter);
-                mMovieTrailerRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+                mMovieTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
             }
 
             @Override
             public void onFailure(Call<MovieVideosModel> call, Throwable t) {
+                call.cancel();
+            }
+        });
+    }
+
+    private void fetchReviewData(Call<MovieReviewsModel> call) {
+        // Async request with callback invocation
+        call.enqueue(new Callback<MovieReviewsModel>() {
+            @Override
+            public void onResponse(Call<MovieReviewsModel> call, Response<MovieReviewsModel> response) {
+                MovieReviewsModel result = response.body();
+                if (result == null) {
+                    return;
+                }
+                mReviews = result.reviews;
+                movieReviewAdapter = new MovieReviewAdapter(mReviews);
+                mMovieReviewRecyclerView.setAdapter(movieReviewAdapter);
+                mMovieReviewRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false));
+            }
+
+            @Override
+            public void onFailure(Call<MovieReviewsModel > call, Throwable t) {
                 call.cancel();
             }
         });

@@ -9,7 +9,10 @@
     <string name="movie_detail_overview"><u>Overview</u></string>
     <string name="this_is_a_movie_poster">This is a movie poster</string>
     <string name="refresh_text">Fetching updated movie data...</string>
-    <string name="movie_detail_trailers">Trailers</string>
+    <string name="movie_detail_trailers"><u>Trailers</u></string>
     <string name="youtube_thumbnail_base_url">http://img.youtube.com/vi/</string>
     <string name="poster_image_for_movie">Poster image for movie</string>
+    <string name="trailerplayctaicon">TrailerPlayCTAIcon</string>
+    <string name="thumbnail_image_for_trailer">Thumbnail image for trailer</string>
+    <string name="reviews"><u>Reviews</u></string>
 </resources>
