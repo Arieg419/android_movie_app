@@ -15,5 +15,6 @@ public class MovieVideosModel {
     public String site;
     @SerializedName("size")
     public Integer size;
+    @SerializedName("results")
     public List<MovieVideosModel> videos = null;
 }

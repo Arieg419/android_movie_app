@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.movie_app.MovieDetailActivity;
 import com.example.movie_app.MovieHomeActivity;
 import com.example.movie_app.R;
+import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
 import com.example.movie_app.fragments.MovieDetailFragment;
 import com.example.movie_app.model.MovieVideosModel;
@@ -23,6 +24,7 @@ import com.example.movie_app.model.PopularMoviesModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -103,35 +105,15 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
                 detailBundle.putString(MovieDetailFragment.RELEASE_DATE, movie.releaseDate);
                 detailBundle.putString(MovieDetailFragment.RATING, movie.voteAverage.toString());
                 detailBundle.putString(MovieDetailFragment.POSTER_PATH, movie.posterPath);
+                detailBundle.putLong(MovieDetailFragment.MOVIE_ID, movie.id);
                 Intent movieDetailIntent = new Intent((MovieHomeActivity) mContext, MovieDetailActivity.class);
                 movieDetailIntent.putExtras(detailBundle);
-                mApiInterface.getTrailers(Long.valueOf(movie.id));
+                mApiInterface = ApiClient.getClient(Objects.requireNonNull(mContext)).create(ApiInterface.class);
                 ((MovieHomeActivity) mContext).startActivity(movieDetailIntent);
             }
         });
     }
 
-    private void fetchMovieData(Call<MovieVideosModel> call) {
-        // Async request with callback invocation
-        call.enqueue(new Callback<MovieVideosModel>() {
-            @Override
-            public void onResponse(Call<MovieVideosModel> call, Response<MovieVideosModel> response) {
-                MovieVideosModel result = response.body();
-                if (result == null) {
-                    return;
-                }
-                List<MovieVideosModel> trailers = result.videos;
-                for(MovieVideosModel mv: trailers) {
-                    System.out.println("Omer is here with title: " + mv.name + " key: " + mv.key);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieVideosModel> call, Throwable t) {
-                call.cancel();
-            }
-        });
-    }
 }
 
 

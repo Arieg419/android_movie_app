@@ -15,14 +15,20 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import com.facebook.flipper.plugins.network.FlipperOkhttpInterceptor;
+import com.facebook.flipper.plugins.network.NetworkFlipperPlugin;
+
+
 public class ApiClient {
 
     public static Retrofit getClient(Context context) {
 
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        NetworkFlipperPlugin networkFlipperPlugin = new NetworkFlipperPlugin();
         OkHttpClient.Builder client =
-                new OkHttpClient.Builder();
+                new OkHttpClient.Builder()
+                .addNetworkInterceptor(new FlipperOkhttpInterceptor(networkFlipperPlugin));
         client.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {

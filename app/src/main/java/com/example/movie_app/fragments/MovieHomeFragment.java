@@ -1,13 +1,16 @@
 package com.example.movie_app.fragments;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.movie_app.R;
 import com.example.movie_app.api.ApiClient;
@@ -23,11 +26,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MovieHomeFragment extends Fragment implements SortableList.SortableMovieAdapter {
-    ApiInterface mApiInterface;
-    MovieHomeAdapter mMovieHomeAdapter;
-    ArrayList<PopularMoviesModel.Result> mPopularMovies;
-    RecyclerView mGridView;
+import static android.widget.Toast.*;
+
+public class MovieHomeFragment extends Fragment implements SortableList.SortableMovieAdapter, SwipeRefreshLayout.OnRefreshListener {
+    private ApiInterface mApiInterface;
+    private MovieHomeAdapter mMovieHomeAdapter;
+    private ArrayList<PopularMoviesModel.Result> mPopularMovies;
+    private RecyclerView mGridView;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
+        fetchMovieData(mApiInterface.doGetPopularMovieList());
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
@@ -37,6 +50,21 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         mGridView = (RecyclerView) Objects.requireNonNull(getActivity()).findViewById(R.id.movies_recycler_view);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) Objects.requireNonNull(getActivity()).findViewById(R.id.movie_home_container);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
+    }
+
+    @Override
+    public void onRefresh() {
+        Toast.makeText(getActivity(), R.string.refresh_text, LENGTH_SHORT).show();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // TODO: Handle internal state of popular / sorted
+                // TODO: Make network request based on state
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }, 2000);
     }
 
     public void setMovieGridAdapter(ArrayList<PopularMoviesModel.Result> movies) {
@@ -60,35 +88,22 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
         mMovieHomeAdapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
-        System.out.println("Omer -> movieHome on create");
-        fetchMovieData(mApiInterface.doGetPopularMovieList());
-        System.out.println("Omer -> movieHome on create after");
-    }
-
     private void fetchMovieData(Call<PopularMoviesModel> call) {
         System.out.println("Omer -> fetch movie data 0");
         // Async request with callback invocation
         call.enqueue(new Callback<PopularMoviesModel>() {
             @Override
             public void onResponse(Call<PopularMoviesModel> call, Response<PopularMoviesModel> response) {
-                System.out.println("Omer -> processing request!");
                 PopularMoviesModel resource = response.body();
                 if (resource == null) {
-                    System.out.println("Omer -> resp on movie home frag is null");
                     return;
                 }
-                System.out.println("Omer -> resp on movie home frag is not null");
                 mPopularMovies = (ArrayList<PopularMoviesModel.Result>) resource.results;
                 setMovieGridAdapter(mPopularMovies);
             }
 
             @Override
             public void onFailure(Call<PopularMoviesModel> call, Throwable t) {
-                System.out.println("Omer -> onFailuerMovieHome api " + t.toString());
                 call.cancel();
             }
         });
