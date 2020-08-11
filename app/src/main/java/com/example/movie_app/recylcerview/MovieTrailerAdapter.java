@@ -1,7 +1,10 @@
 package com.example.movie_app.recylcerview;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,9 +81,15 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: Open link in youtube if exists or default browser
-                System.out.println("Omer -> open trailer now!");
-            }
+                    String youtubeVideoId = movie.key;
+                    Intent appIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + youtubeVideoId));
+                    Intent webIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + youtubeVideoId));
+                    try {
+                        mContext.startActivity(appIntent);
+                    } catch (ActivityNotFoundException ex) {
+                        mContext.startActivity(webIntent);
+                    }
+                }
         });
     }
 }
