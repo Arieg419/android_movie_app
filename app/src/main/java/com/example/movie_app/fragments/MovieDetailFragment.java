@@ -1,13 +1,28 @@
 package com.example.movie_app.fragments;
 
+import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.ScaleAnimation;
+import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,6 +70,7 @@ public class MovieDetailFragment extends Fragment {
     MovieReviewAdapter movieReviewAdapter;
     RecyclerView mMovieTrailerRecyclerView;
     RecyclerView mMovieReviewRecyclerView;
+    CompoundButton mFavoriteBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +107,7 @@ public class MovieDetailFragment extends Fragment {
         mMovieReleaseDate = view.findViewById(R.id.movie_detail_release_date);
         mMovieRating = view.findViewById(R.id.movie_detail_rating);
         mMovieOverview = view.findViewById(R.id.movie_detail_overview);
+        mFavoriteBtn = view.findViewById(R.id.movie_detail_add_to_fav);
         mMovieTrailerRecyclerView = view.findViewById(R.id.movie_trailer_recycler_view);
         mMovieReviewRecyclerView = view.findViewById(R.id.movie_reviews_recycler_view);
 
@@ -121,6 +138,23 @@ public class MovieDetailFragment extends Fragment {
 
         // Set overview
         mMovieOverview.setText(b.getString(OVERVIEW));
+
+        // Set favorite btn animation
+        mFavoriteBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
+            @SuppressLint("ShowToast")
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                ScaleAnimation scaleAnimation = new ScaleAnimation(0.7f, 1.0f, 0.7f, 1.0f, Animation.RELATIVE_TO_SELF, 0.7f, Animation.RELATIVE_TO_SELF, 0.7f);
+                scaleAnimation.setDuration(500);
+                BounceInterpolator bounceInterpolator = new BounceInterpolator();
+                scaleAnimation.setInterpolator(bounceInterpolator);
+                compoundButton.startAnimation(scaleAnimation);
+                if (isChecked) {
+                    Toast.makeText(getActivity(), "Added to favorites!", Toast.LENGTH_SHORT).show();
+                } else  {
+                    Toast.makeText(getActivity(), "Removed from favorites", Toast.LENGTH_SHORT).show();
+                }
+            }});
     }
 
     private void fetchTrailerData(Call<MovieVideosModel> call) {
