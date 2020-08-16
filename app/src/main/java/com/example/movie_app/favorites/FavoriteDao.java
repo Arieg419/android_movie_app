@@ -1,12 +1,11 @@
 package com.example.movie_app.favorites;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
-import androidx.room.Update;
 
 import java.util.List;
 
@@ -14,9 +13,8 @@ import java.util.List;
 public interface FavoriteDao {
 
     @Query("SELECT * FROM favorites ORDER BY title")
-    List<FavoriteEntity> loadAllFavorites();
+    LiveData<List<FavoriteEntity>> loadAllFavorites();
 
-    // TODO: Don't create duplicate records
     @Insert
     void insertFavorite(FavoriteEntity favoriteEntity);
 
@@ -24,7 +22,6 @@ public interface FavoriteDao {
     @Nullable
     FavoriteEntity getFavoriteByIdentifiers(String title, String overview);
 
-    // TODO: Delete by title?
     @Delete
     void deleteFavorite(FavoriteEntity favoriteEntity);
 }

@@ -49,14 +49,17 @@ public class MovieHomeActivity extends AppCompatActivity {
         switch(item.getItemId()){
             case R.id.popular_sort:
                 sort(SortableList.SORT_BY_TITLE, movieHomeFragment);
+                setTitle(R.string.app_name);
                 break;
 
             case R.id.rating_sort:
                 sort(SortableList.SORT_BY_RATING, movieHomeFragment);
+                setTitle(R.string.top_rated_movies);
                 break;
 
             case R.id.favorite_sort:
                 sort(SortableList.SORT_BY_FAVORITE, movieHomeFragment);
+                setTitle(R.string.favorite_movies);
                 break;
 
         }
