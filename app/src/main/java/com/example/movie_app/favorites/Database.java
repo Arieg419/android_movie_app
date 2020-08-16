@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@androidx.room.Database(entities = {FavoriteEntity.class}, version = 3, exportSchema = false)
+@androidx.room.Database(entities = {FavoriteEntity.class}, version = 6, exportSchema = false)
 @TypeConverters({DateConvertor.class})
 public abstract class Database extends RoomDatabase {
 

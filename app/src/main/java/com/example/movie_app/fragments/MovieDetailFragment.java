@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -62,6 +63,7 @@ public class MovieDetailFragment extends Fragment {
     CompoundButton mFavoriteBtn;
 
     // Data
+    int mMovieId;
     String mMovieTitleString;
     String mMovieReleaseDateString;
     String mMovieRatingString;
@@ -112,6 +114,7 @@ public class MovieDetailFragment extends Fragment {
         assert(b != null);
 
         // Extract bundle data
+        mMovieId = (int) b.getLong(MOVIE_ID);
         mMovieTitleString = b.getString(TITLE);
         mMovieReleaseDateString = b.getString(RELEASE_DATE);
         mMovieRatingString = b.getString(RATING);
@@ -157,39 +160,51 @@ public class MovieDetailFragment extends Fragment {
         // Set overview
         mMovieOverview.setText(mMovieOverviewString);
 
+        // Set favorite btn state
+        @Nullable FavoriteEntity favoriteEntity = mFavoritesDb.favoriteDao().getFavoriteByIdentifiers(mMovieTitleString, mMovieOverviewString);
+        if (favoriteEntity == null) {
+            mFavoriteBtn.setChecked(false);
+        } else {
+            mFavoriteBtn.setChecked(true);
+        }
+
         // Set favorite btn animation
-        mFavoriteBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
-            @SuppressLint("ShowToast")
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                ScaleAnimation scaleAnimation = new ScaleAnimation(
-                        0.7f,
-                        1.0f,
-                        0.7f,
-                        1.0f,
-                        Animation.RELATIVE_TO_SELF,
-                        0.7f,
-                        Animation.RELATIVE_TO_SELF,
-                        0.7f
-                );
-                scaleAnimation.setDuration(500);
-                BounceInterpolator bounceInterpolator = new BounceInterpolator();
-                scaleAnimation.setInterpolator(bounceInterpolator);
-                compoundButton.startAnimation(scaleAnimation);
-                if (isChecked) {
-                    mFavoritesDb
-                            .favoriteDao()
-                            .insertFavorite(new FavoriteEntity(
-                                    mMovieTitleString,
-                                    mPosterPathString,
-                                    mMovieRatingString,
-                                    mMovieOverviewString,
-                                    mMovieReleaseDateString));
-                    Toast.makeText(getActivity(), "Added to favorites!", Toast.LENGTH_SHORT).show();
-                } else  {
-                    Toast.makeText(getActivity(), "Removed from favorites", Toast.LENGTH_SHORT).show();
-                }
-            }});
+        mFavoriteBtn.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            ScaleAnimation scaleAnimation = new ScaleAnimation(
+                    0.7f,
+                    1.0f,
+                    0.7f,
+                    1.0f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.7f,
+                    Animation.RELATIVE_TO_SELF,
+                    0.7f
+            );
+            scaleAnimation.setDuration(500);
+            BounceInterpolator bounceInterpolator = new BounceInterpolator();
+            scaleAnimation.setInterpolator(bounceInterpolator);
+            compoundButton.startAnimation(scaleAnimation);
+
+            // Favorite btn click listener
+            FavoriteEntity favorite = new FavoriteEntity(
+                    mMovieId,
+                    mMovieTitleString,
+                    mPosterPathString,
+                    mMovieRatingString,
+                    mMovieOverviewString,
+                    mMovieReleaseDateString);
+            if (isChecked) {
+                mFavoritesDb
+                        .favoriteDao()
+                        .insertFavorite(favorite);
+                Toast.makeText(getActivity(), "Added to favorites!", Toast.LENGTH_SHORT).show();
+            } else  {
+                mFavoritesDb
+                        .favoriteDao()
+                        .deleteFavorite(favorite);
+                Toast.makeText(getActivity(), "Removed from favorites", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void fetchTrailerData(Call<MovieVideosModel> call) {

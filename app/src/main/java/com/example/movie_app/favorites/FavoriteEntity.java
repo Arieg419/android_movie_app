@@ -1,21 +1,25 @@
 package com.example.movie_app.favorites;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.PrimaryKey;
-
-import java.util.Date;
 
 /**
  * Represents one record of the Favorites table.
  */
-@Entity(tableName = "favorites")
+@Entity(tableName = "favorites", primaryKeys = {"title", "overview"})
 public class FavoriteEntity {
-    @PrimaryKey(autoGenerate = true)
-    private int mId;
 
+    @NonNull
     @ColumnInfo(name = "title")
     private String mTitle;
+
+    @NonNull
+    @ColumnInfo(name = "overview")
+    private String mOverview;
+
+    @ColumnInfo(name = "id")
+    private int mId;
 
     @ColumnInfo(name = "poster_path")
     private String mPosterPath;
@@ -23,22 +27,16 @@ public class FavoriteEntity {
     @ColumnInfo(name = "vote_average")
     private String mVoteAverage;
 
-    @ColumnInfo(name = "overview")
-    private String mOverview;
-
     @ColumnInfo(name = "release_date")
     private String mReleaseDate;
 
-    @ColumnInfo(name = "updated_at")
-    private Date mUpdatedAt;
-
-    public FavoriteEntity(String title, String posterPath, String voteAverage, String overview, String releaseDate) {
-       mTitle = title;
-       mPosterPath = posterPath;
-       mVoteAverage = voteAverage;
-       mOverview = overview;
-       mReleaseDate = releaseDate;
-       mUpdatedAt = new Date();
+    public FavoriteEntity(int id, String title, String posterPath, String voteAverage, String overview, String releaseDate) {
+        mId  = id;
+        mTitle = title;
+        mPosterPath = posterPath;
+        mVoteAverage = voteAverage;
+        mOverview = overview;
+        mReleaseDate = releaseDate;
     }
 
     public int getId() {
@@ -46,7 +44,7 @@ public class FavoriteEntity {
     }
 
     public void setId(int id) {
-       mId = id;
+        mId = id;
     }
 
     public String getTitle() {
@@ -87,13 +85,5 @@ public class FavoriteEntity {
 
     public void setReleaseDate(String releaseDate) {
         mReleaseDate = releaseDate;
-    }
-
-    public Date getUpdatedAt() {
-        return mUpdatedAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        mUpdatedAt= updatedAt;
     }
 }

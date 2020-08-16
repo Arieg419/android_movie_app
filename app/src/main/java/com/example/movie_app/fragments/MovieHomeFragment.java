@@ -54,8 +54,8 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        mGridView = (RecyclerView) Objects.requireNonNull(getActivity()).findViewById(R.id.movies_recycler_view);
-        mSwipeRefreshLayout = (SwipeRefreshLayout) Objects.requireNonNull(getActivity()).findViewById(R.id.movie_home_container);
+        mGridView = Objects.requireNonNull(getActivity()).findViewById(R.id.movies_recycler_view);
+        mSwipeRefreshLayout = Objects.requireNonNull(getActivity()).findViewById(R.id.movie_home_container);
         mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
