@@ -14,27 +14,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_app.MovieDetailActivity;
-import com.example.movie_app.MovieHomeActivity;
 import com.example.movie_app.R;
-import com.example.movie_app.api.ApiClient;
-import com.example.movie_app.api.ApiInterface;
 import com.example.movie_app.fragments.MovieDetailFragment;
-import com.example.movie_app.model.MovieVideosModel;
 import com.example.movie_app.model.PopularMoviesModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-import java.util.Objects;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
 public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.ViewHolder>{
     Context mContext;
-    ApiInterface mApiInterface;
     List<PopularMoviesModel.Result> mPopularMovies;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -47,9 +37,9 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
         public ViewHolder(View view) {
             super(view);
             itemView = view;
-            movieTitle = (TextView) itemView.findViewById(R.id.textview_movie_name);
-            movieRating = (TextView) itemView.findViewById(R.id.textview_movie_rating);
-            moviePoster = (ImageView) itemView.findViewById(R.id.imageview_movie_poster);
+            movieTitle = itemView.findViewById(R.id.textview_movie_name);
+            movieRating = itemView.findViewById(R.id.textview_movie_rating);
+            moviePoster = itemView.findViewById(R.id.imageview_movie_poster);
         }
     }
 
@@ -106,9 +96,9 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
                 detailBundle.putString(MovieDetailFragment.RATING, movie.voteAverage.toString());
                 detailBundle.putString(MovieDetailFragment.POSTER_PATH, movie.posterPath);
                 detailBundle.putLong(MovieDetailFragment.MOVIE_ID, movie.id);
-                Intent movieDetailIntent = new Intent((MovieHomeActivity) mContext, MovieDetailActivity.class);
+                Intent movieDetailIntent = new Intent(mContext, MovieDetailActivity.class);
                 movieDetailIntent.putExtras(detailBundle);
-                ((MovieHomeActivity) mContext).startActivity(movieDetailIntent);
+                (mContext).startActivity(movieDetailIntent);
             }
         });
     }

@@ -1,12 +1,6 @@
 package com.example.movie_app.fragments;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -15,22 +9,20 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.RequiresApi;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_app.R;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
+import com.example.movie_app.favorites.Database;
+import com.example.movie_app.favorites.FavoriteEntity;
 import com.example.movie_app.model.MovieReviewsModel;
 import com.example.movie_app.model.MovieVideosModel;
 import com.example.movie_app.recylcerview.MovieReviewAdapter;
@@ -58,19 +50,34 @@ public class MovieDetailFragment extends Fragment {
     public static final String POSTER_PATH = "POSTER_PATH";
     public static final String MOVIE_ID = "MOVIE_ID";
 
+    // API ref
     ApiInterface mApiInterface;
+
+    // View refs
     ImageView mMiniPoster;
     TextView mMovieTitle;
     TextView mMovieReleaseDate;
     TextView mMovieRating;
     TextView mMovieOverview;
+    CompoundButton mFavoriteBtn;
+
+    // Data
+    String mMovieTitleString;
+    String mMovieReleaseDateString;
+    String mMovieRatingString;
+    String mMovieOverviewString;
+    String mPosterPathString;
     List<MovieVideosModel> mTrailers;
     List<MovieReviewsModel> mReviews;
+    private Database mFavoritesDb;
+
+    // Adapters
     MovieTrailerAdapter movieTrailerAdapter;
     MovieReviewAdapter movieReviewAdapter;
+
+    // RVs
     RecyclerView mMovieTrailerRecyclerView;
     RecyclerView mMovieReviewRecyclerView;
-    CompoundButton mFavoriteBtn;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +96,9 @@ public class MovieDetailFragment extends Fragment {
 
         // Fetch review data
         fetchReviewData(mApiInterface.getReviews(movieId));
+
+        // Get instance of favorite db
+        mFavoritesDb = Database.getInstance(getContext());
     }
 
     @Override
@@ -100,6 +110,13 @@ public class MovieDetailFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         Bundle b = this.getArguments();
         assert(b != null);
+
+        // Extract bundle data
+        mMovieTitleString = b.getString(TITLE);
+        mMovieReleaseDateString = b.getString(RELEASE_DATE);
+        mMovieRatingString = b.getString(RATING);
+        mMovieOverviewString = b.getString(OVERVIEW);
+        mPosterPathString = b.getString(POSTER_PATH);
 
         // Get views
         mMiniPoster = view.findViewById(R.id.movie_detail_mini_poster);
@@ -113,14 +130,14 @@ public class MovieDetailFragment extends Fragment {
 
         // Set mini poster
         Picasso.get()
-                .load(getMovieDetailPosterPath(Objects.requireNonNull(getContext()), Objects.requireNonNull(b.getString(POSTER_PATH)), 400))
+                .load(getMovieDetailPosterPath(Objects.requireNonNull(getContext()), Objects.requireNonNull(mPosterPathString), 400) )
                 .into(mMiniPoster);
 
         // Set title
-        mMovieTitle.setText(b.getString(TITLE));
+        mMovieTitle.setText(mMovieTitleString);
 
         // Set release date
-        String releaseDate = b.getString(RELEASE_DATE);
+        String releaseDate = mMovieReleaseDateString;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         try {
             assert releaseDate != null;
@@ -128,7 +145,8 @@ public class MovieDetailFragment extends Fragment {
             String day          = (String) DateFormat.format("dd",   date); // 20
             String month = (String) DateFormat.format("MMMM",  date); // Jun
             String year         = (String) DateFormat.format("yyyy", date); // 2013
-            mMovieReleaseDate.setText("Release: " + month + " " + day + ", " + year);
+            mMovieReleaseDateString = "Release: " + month + " " + day + ", " + year;
+            mMovieReleaseDate.setText(mMovieReleaseDateString);
         } catch (ParseException e) {
             mMovieReleaseDate.setText(releaseDate);
         }
@@ -137,19 +155,36 @@ public class MovieDetailFragment extends Fragment {
         mMovieRating.setText("Rating: " + b.getString(RATING) + "/10");
 
         // Set overview
-        mMovieOverview.setText(b.getString(OVERVIEW));
+        mMovieOverview.setText(mMovieOverviewString);
 
         // Set favorite btn animation
         mFavoriteBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener(){
             @SuppressLint("ShowToast")
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                ScaleAnimation scaleAnimation = new ScaleAnimation(0.7f, 1.0f, 0.7f, 1.0f, Animation.RELATIVE_TO_SELF, 0.7f, Animation.RELATIVE_TO_SELF, 0.7f);
+                ScaleAnimation scaleAnimation = new ScaleAnimation(
+                        0.7f,
+                        1.0f,
+                        0.7f,
+                        1.0f,
+                        Animation.RELATIVE_TO_SELF,
+                        0.7f,
+                        Animation.RELATIVE_TO_SELF,
+                        0.7f
+                );
                 scaleAnimation.setDuration(500);
                 BounceInterpolator bounceInterpolator = new BounceInterpolator();
                 scaleAnimation.setInterpolator(bounceInterpolator);
                 compoundButton.startAnimation(scaleAnimation);
                 if (isChecked) {
+                    mFavoritesDb
+                            .favoriteDao()
+                            .insertFavorite(new FavoriteEntity(
+                                    mMovieTitleString,
+                                    mPosterPathString,
+                                    mMovieRatingString,
+                                    mMovieOverviewString,
+                                    mMovieReleaseDateString));
                     Toast.makeText(getActivity(), "Added to favorites!", Toast.LENGTH_SHORT).show();
                 } else  {
                     Toast.makeText(getActivity(), "Removed from favorites", Toast.LENGTH_SHORT).show();

@@ -55,6 +55,10 @@ public class MovieHomeActivity extends AppCompatActivity {
                 sort(SortableList.SORT_BY_RATING, movieHomeFragment);
                 break;
 
+            case R.id.favorite_sort:
+                sort(SortableList.SORT_BY_FAVORITE, movieHomeFragment);
+                break;
+
         }
         return true;
     }

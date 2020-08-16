@@ -15,18 +15,21 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.movie_app.R;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
+import com.example.movie_app.favorites.Database;
+import com.example.movie_app.favorites.FavoriteEntity;
 import com.example.movie_app.model.PopularMoviesModel;
 import com.example.movie_app.recylcerview.MovieHomeAdapter;
 import com.example.movie_app.sort.SortableList;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static android.widget.Toast.*;
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class MovieHomeFragment extends Fragment implements SortableList.SortableMovieAdapter, SwipeRefreshLayout.OnRefreshListener {
     private ApiInterface mApiInterface;
@@ -34,12 +37,14 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
     private ArrayList<PopularMoviesModel.Result> mPopularMovies;
     private RecyclerView mGridView;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private Database mFavoritesDb;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mApiInterface = ApiClient.getClient(Objects.requireNonNull(getContext())).create(ApiInterface.class);
         fetchMovieData(mApiInterface.doGetPopularMovieList());
+        mFavoritesDb = Database.getInstance(getContext());
     }
 
     @Override
@@ -71,6 +76,32 @@ public class MovieHomeFragment extends Fragment implements SortableList.Sortable
         mMovieHomeAdapter = new MovieHomeAdapter(movies);
         mGridView.setAdapter(mMovieHomeAdapter);
         mGridView.setLayoutManager(new GridLayoutManager(getContext(), 2));
+    }
+
+    private void getFavoriteMovies() {
+        List<FavoriteEntity> favorites = mFavoritesDb.favoriteDao().loadAllFavorites();
+        ArrayList<PopularMoviesModel.Result> favoritesModel = new ArrayList<>();
+        for (FavoriteEntity f: favorites) {
+            PopularMoviesModel.Result res = new PopularMoviesModel.Result();
+            String voteAvg = f.getVoteAverage();
+            double movieRatingAverage = voteAvg == null || voteAvg.isEmpty()
+                    ? 0.0
+                    : Double.parseDouble(voteAvg);
+            res.id = f.getId();
+            res.title = f.getTitle();
+            res.voteAverage = movieRatingAverage;
+            res.overview = f.getOverview();
+            res.posterPath = f.getPosterPath();
+            res.releaseDate = f.getReleaseDate();
+            favoritesModel.add(res);
+        }
+        mPopularMovies = favoritesModel;
+        setMovieGridAdapter(mPopularMovies);
+    }
+
+    public void sortByFavorite() {
+        getFavoriteMovies();
+        updateAdapter();
     }
 
     public void sortByRating() {

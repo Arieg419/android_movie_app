@@ -5,12 +5,6 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class PopularMoviesModel {
-    @SerializedName("page")
-    public Integer page;
-    @SerializedName("total_results")
-    public Integer totalResults;
-    @SerializedName("total_pages")
-    public Integer totalPages;
     @SerializedName("results")
     public List<Result> results = null;
 
@@ -21,24 +15,10 @@ public class PopularMoviesModel {
             return this.title.compareTo(r.title);
         }
 
-        @SerializedName("popularity")
-        public Float popularity;
-        @SerializedName("vote_count")
-        public Integer voteCount;
-        @SerializedName("video")
-        public boolean video;
         @SerializedName("poster_path")
         public String posterPath;
         @SerializedName("id")
         public Integer id;
-        @SerializedName("adult")
-        public boolean adult;
-        @SerializedName("backdrop_path")
-        public String backdropPath;
-        @SerializedName("original_language")
-        public String originalLanguage;
-        @SerializedName("original_title")
-        public String originalTitle;
         @SerializedName("title")
         public String title;
         @SerializedName("vote_average")
