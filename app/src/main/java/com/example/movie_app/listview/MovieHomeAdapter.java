@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Movie;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.movie_app.MovieDetailActivity;
-import com.example.movie_app.fragments.MovieDetailFragment;
 import com.example.movie_app.MovieHomeActivity;
 import com.example.movie_app.R;
 import com.example.movie_app.model.PopularMoviesModel;
@@ -45,32 +45,29 @@ public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
         assert(currentMovie != null);
 
         // Set movie title
-        TextView movieTitle = (TextView) listItemView.findViewById(R.id.textview_movie_name);
+        TextView movieTitle = listItemView.findViewById(R.id.textview_movie_name);
         movieTitle.setText(currentMovie.title);
 
         // Set movie rating
-        TextView movieRating = (TextView) listItemView.findViewById(R.id.textview_movie_rating);
+        TextView movieRating = listItemView.findViewById(R.id.textview_movie_rating);
         movieRating.setText(Double.toString(currentMovie.voteAverage));
 
         // Set movie poster
-        ImageView moviePoster = (ImageView) listItemView.findViewById(R.id.imageview_movie_poster);
+        ImageView moviePoster = listItemView.findViewById(R.id.imageview_movie_poster);
         String imgPath = getMovieDetailPosterPath(context, currentMovie.posterPath, 400);
         Picasso.get().load(imgPath).into(moviePoster);
 
         // Set movie item click listener
-        listItemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle detailBundle = new Bundle();
-                detailBundle.putString(MovieDetailFragment.TITLE, currentMovie.title);
-                detailBundle.putString(MovieDetailFragment.OVERVIEW, currentMovie.overview);
-                detailBundle.putString(MovieDetailFragment.RELEASE_DATE, currentMovie.releaseDate);
-                detailBundle.putString(MovieDetailFragment.RATING, currentMovie.voteAverage.toString());
-                detailBundle.putString(MovieDetailFragment.POSTER_PATH, currentMovie.posterPath);
-                Intent movieDetailIntent = new Intent((MovieHomeActivity) getContext(), MovieDetailActivity.class);
-                movieDetailIntent.putExtras(detailBundle);
-                ((MovieHomeActivity) getContext()).startActivity(movieDetailIntent);
-            }
+        listItemView.setOnClickListener(view -> {
+            Bundle detailBundle = new Bundle();
+            detailBundle.putString(MovieDetailActivity.TITLE, currentMovie.title);
+            detailBundle.putString(MovieDetailActivity.OVERVIEW, currentMovie.overview);
+            detailBundle.putString(MovieDetailActivity.RELEASE_DATE, currentMovie.releaseDate);
+            detailBundle.putString(MovieDetailActivity.RATING, currentMovie.voteAverage.toString());
+            detailBundle.putString(MovieDetailActivity.POSTER_PATH, currentMovie.posterPath);
+            Intent movieDetailIntent = new Intent(getContext(), MovieDetailActivity.class);
+            movieDetailIntent.putExtras(detailBundle);
+            (getContext()).startActivity(movieDetailIntent);
         });
 
         return listItemView;

@@ -1,4 +1,4 @@
-package com.example.movie_app.favorites;
+package com.example.movie_app.database;
 
 import androidx.room.TypeConverter;
 

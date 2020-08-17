@@ -1,6 +1,5 @@
-package com.example.movie_app.favorites;
+package com.example.movie_app.database;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -18,9 +17,8 @@ public interface FavoriteDao {
     @Insert
     void insertFavorite(FavoriteEntity favoriteEntity);
 
-    @Query("SELECT * FROM favorites WHERE  title = :title AND overview = :overview")
-    @Nullable
-    FavoriteEntity getFavoriteByIdentifiers(String title, String overview);
+    @Query("SELECT * FROM favorites WHERE id = :id")
+    LiveData<FavoriteEntity>getFavoriteById(int id);
 
     @Delete
     void deleteFavorite(FavoriteEntity favoriteEntity);

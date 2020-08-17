@@ -1,14 +1,19 @@
-package com.example.movie_app.favorites;
+package com.example.movie_app.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 /**
  * Represents one record of the Favorites table.
  */
-@Entity(tableName = "favorites", primaryKeys = {"title", "overview"})
+@Entity(tableName = "favorites")
 public class FavoriteEntity {
+
+    @PrimaryKey
+    @ColumnInfo(name = "id")
+    private int mId;
 
     @NonNull
     @ColumnInfo(name = "title")
@@ -17,9 +22,6 @@ public class FavoriteEntity {
     @NonNull
     @ColumnInfo(name = "overview")
     private String mOverview;
-
-    @ColumnInfo(name = "id")
-    private int mId;
 
     @ColumnInfo(name = "poster_path")
     private String mPosterPath;
@@ -59,31 +61,15 @@ public class FavoriteEntity {
         return mPosterPath;
     }
 
-    public void setPosterPath(String posterPath) {
-        mPosterPath = posterPath;
-    }
-
     public String getVoteAverage() {
         return mVoteAverage;
-    }
-
-    public void setVoteAverage(String voterAverage) {
-        mVoteAverage = voterAverage;
     }
 
     public String getOverview() {
         return mOverview;
     }
 
-    public void setOverview(String overview) {
-        mOverview = overview;
-    }
-
     public String getReleaseDate() {
         return mReleaseDate;
-    }
-
-    public void setReleaseDate(String releaseDate) {
-        mReleaseDate = releaseDate;
     }
 }

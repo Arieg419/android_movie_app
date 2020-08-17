@@ -15,10 +15,6 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import com.facebook.flipper.plugins.network.FlipperOkhttpInterceptor;
-import com.facebook.flipper.plugins.network.NetworkFlipperPlugin;
-
-
 public class ApiClient {
 
     public static Retrofit getClient(Context context) {

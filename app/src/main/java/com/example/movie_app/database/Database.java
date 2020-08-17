@@ -1,4 +1,4 @@
-package com.example.movie_app.favorites;
+package com.example.movie_app.database;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,7 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
-@androidx.room.Database(entities = {FavoriteEntity.class}, version = 6, exportSchema = false)
+@androidx.room.Database(entities = {FavoriteEntity.class}, version = 8, exportSchema = false)
 @TypeConverters({DateConvertor.class})
 public abstract class Database extends RoomDatabase {
 
@@ -20,9 +20,8 @@ public abstract class Database extends RoomDatabase {
        if (sInstance == null) {
            synchronized (LOCK) {
                Log.d(LOG_TAG, "Creating new db instance");
-               // TODO: Disable queries on main thread
                sInstance = Room.databaseBuilder(context.getApplicationContext(), Database.class, Database.DATABASE_NAME)
-                       .allowMainThreadQueries()
+                       .fallbackToDestructiveMigration()
                        .build();
            }
        }

@@ -1,4 +1,4 @@
-package com.example.movie_app.recylcerview;
+package com.example.movie_app.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;

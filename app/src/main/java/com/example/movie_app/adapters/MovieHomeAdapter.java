@@ -1,4 +1,4 @@
-package com.example.movie_app.recylcerview;
+package com.example.movie_app.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_app.MovieDetailActivity;
 import com.example.movie_app.R;
-import com.example.movie_app.fragments.MovieDetailFragment;
 import com.example.movie_app.model.PopularMoviesModel;
 import com.squareup.picasso.Picasso;
 
@@ -90,12 +89,12 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
             @Override
             public void onClick(View view) {
                 Bundle detailBundle = new Bundle();
-                detailBundle.putString(MovieDetailFragment.TITLE, movie.title);
-                detailBundle.putString(MovieDetailFragment.OVERVIEW, movie.overview);
-                detailBundle.putString(MovieDetailFragment.RELEASE_DATE, movie.releaseDate);
-                detailBundle.putString(MovieDetailFragment.RATING, movie.voteAverage.toString());
-                detailBundle.putString(MovieDetailFragment.POSTER_PATH, movie.posterPath);
-                detailBundle.putLong(MovieDetailFragment.MOVIE_ID, movie.id);
+                detailBundle.putString(MovieDetailActivity.TITLE, movie.title);
+                detailBundle.putString(MovieDetailActivity.OVERVIEW, movie.overview);
+                detailBundle.putString(MovieDetailActivity.RELEASE_DATE, movie.releaseDate);
+                detailBundle.putString(MovieDetailActivity.RATING, movie.voteAverage.toString());
+                detailBundle.putString(MovieDetailActivity.POSTER_PATH, movie.posterPath);
+                detailBundle.putLong(MovieDetailActivity.MOVIE_ID, movie.id);
                 Intent movieDetailIntent = new Intent(mContext, MovieDetailActivity.class);
                 movieDetailIntent.putExtras(detailBundle);
                 (mContext).startActivity(movieDetailIntent);
@@ -103,6 +102,10 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
         });
     }
 
+    public void clear() {
+        mPopularMovies.clear();
+        notifyDataSetChanged();
+    }
 }
 
 
