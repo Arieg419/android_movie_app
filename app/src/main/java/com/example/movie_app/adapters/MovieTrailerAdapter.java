@@ -48,7 +48,7 @@ public class MovieTrailerAdapter extends RecyclerView.Adapter<MovieTrailerAdapte
 
     @Override
     public int getItemCount() {
-        return mTrailers.size();
+        return mTrailers == null ? 0: mTrailers.size();
     }
 
     @NonNull

@@ -1,6 +1,8 @@
-package com.example.movie_app;
+package com.example.movie_app.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,6 +13,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.movie_app.R;
 import com.example.movie_app.adapters.MovieHomeAdapter;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
@@ -30,31 +33,31 @@ public class MovieHomeActivity extends AppCompatActivity {
     private MovieHomeAdapter mMovieHomeAdapter;
     private ArrayList<PopularMoviesModel.Result> mMovies;
     private RecyclerView mRecyclerView;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // View refs
+        mRecyclerView = findViewById(R.id.movies_home_recycler_view);
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        mRecyclerView.setAdapter(new MovieHomeAdapter(null));
+        mToolbar = findViewById(R.id.toolbar);
+
         // Toolbar init
-        Toolbar mToolbar = this.findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
 
         // Fetch data
         mApiInterface = ApiClient.getClient(this).create(ApiInterface.class);
         fetchMovieData(mApiInterface.doGetPopularMovieList());
         loadFavoriteMovies();
-
-        // Grid ref
-        mRecyclerView = findViewById(R.id.movies_home_recycler_view);
-
-
     }
 
     public void setMovieGridAdapter(ArrayList<PopularMoviesModel.Result> movies) {
         mMovieHomeAdapter = new MovieHomeAdapter(movies);
         mRecyclerView.setAdapter(mMovieHomeAdapter);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
     }
 
     private void loadFavoriteMovies() {
@@ -66,6 +69,7 @@ public class MovieHomeActivity extends AppCompatActivity {
                 mMovies = updatedFavorites;
                 return;
             }
+            System.out.println("Omer -> found " + favorites.size() + " favorites");
             for (FavoriteEntity f: favorites) {
                 PopularMoviesModel.Result res = new PopularMoviesModel.Result();
                 String voteAvg = f.getVoteAverage();
@@ -85,9 +89,8 @@ public class MovieHomeActivity extends AppCompatActivity {
     }
 
     public void sortByFavorite() {
-        mMovieHomeAdapter.clear();
-        setMovieGridAdapter(mMovies);
-        mMovieHomeAdapter.notifyDataSetChanged();
+        loadFavoriteMovies();
+        updateAdapter();
     }
 
     public void sortByRating() {
@@ -115,7 +118,9 @@ public class MovieHomeActivity extends AppCompatActivity {
                     return;
                 }
                 mMovies = (ArrayList<PopularMoviesModel.Result>) resource.results;
-                setMovieGridAdapter(mMovies);
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    setMovieGridAdapter(mMovies);
+                });
             }
 
             @Override
@@ -140,17 +145,14 @@ public class MovieHomeActivity extends AppCompatActivity {
                 sortByTitle();
                 setTitle(R.string.app_name);
                 break;
-
             case R.id.rating_sort:
                 sortByRating();
                 setTitle(R.string.top_rated_movies);
                 break;
-
             case R.id.favorite_sort:
                 sortByFavorite();
                 setTitle(R.string.favorite_movies);
                 break;
-
         }
         return true;
     }

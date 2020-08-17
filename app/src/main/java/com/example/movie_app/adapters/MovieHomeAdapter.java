@@ -13,13 +13,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.movie_app.MovieDetailActivity;
+import com.example.movie_app.activities.MovieDetailActivity;
 import com.example.movie_app.R;
 import com.example.movie_app.model.PopularMoviesModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import static com.example.movie_app.constants.Constants.MOVIE_ID;
+import static com.example.movie_app.constants.Constants.OVERVIEW;
+import static com.example.movie_app.constants.Constants.POSTER_PATH;
+import static com.example.movie_app.constants.Constants.RATING;
+import static com.example.movie_app.constants.Constants.RELEASE_DATE;
+import static com.example.movie_app.constants.Constants.TITLE;
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
 public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.ViewHolder>{
@@ -49,7 +55,7 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
 
     @Override
     public int getItemCount() {
-        return mPopularMovies.size();
+        return mPopularMovies == null ? 0 : mPopularMovies.size();
     }
 
     @NonNull
@@ -89,12 +95,12 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
             @Override
             public void onClick(View view) {
                 Bundle detailBundle = new Bundle();
-                detailBundle.putString(MovieDetailActivity.TITLE, movie.title);
-                detailBundle.putString(MovieDetailActivity.OVERVIEW, movie.overview);
-                detailBundle.putString(MovieDetailActivity.RELEASE_DATE, movie.releaseDate);
-                detailBundle.putString(MovieDetailActivity.RATING, movie.voteAverage.toString());
-                detailBundle.putString(MovieDetailActivity.POSTER_PATH, movie.posterPath);
-                detailBundle.putLong(MovieDetailActivity.MOVIE_ID, movie.id);
+                detailBundle.putString(TITLE, movie.title);
+                detailBundle.putString(OVERVIEW, movie.overview);
+                detailBundle.putString(RELEASE_DATE, movie.releaseDate);
+                detailBundle.putString(RATING, movie.voteAverage.toString());
+                detailBundle.putString(POSTER_PATH, movie.posterPath);
+                detailBundle.putLong(MOVIE_ID, movie.id);
                 Intent movieDetailIntent = new Intent(mContext, MovieDetailActivity.class);
                 movieDetailIntent.putExtras(detailBundle);
                 (mContext).startActivity(movieDetailIntent);

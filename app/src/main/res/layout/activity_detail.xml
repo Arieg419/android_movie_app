@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MovieHomeActivity">
+    tools:context=".activities.MovieHomeActivity">
 
     <androidx.appcompat.widget.Toolbar
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,6 +13,6 @@
         android:theme="@style/ToolbarTheme"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
-    <include android:id="@+id/movies_recycler_view" layout="@layout/movie_detail" />
+    <include layout="@layout/movie_detail" />
 
 </RelativeLayout>

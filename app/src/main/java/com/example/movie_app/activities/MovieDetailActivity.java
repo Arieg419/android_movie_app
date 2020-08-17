@@ -1,7 +1,9 @@
-package com.example.movie_app;
+package com.example.movie_app.activities;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.format.DateFormat;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
@@ -14,19 +16,24 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.movie_app.R;
 import com.example.movie_app.adapters.MovieReviewAdapter;
 import com.example.movie_app.adapters.MovieTrailerAdapter;
 import com.example.movie_app.api.ApiClient;
 import com.example.movie_app.api.ApiInterface;
+import com.example.movie_app.database.Database;
 import com.example.movie_app.database.FavoriteEntity;
 import com.example.movie_app.executors.AppExecutors;
 import com.example.movie_app.model.MovieReviewsModel;
 import com.example.movie_app.model.MovieVideosModel;
 import com.example.movie_app.viewmodel.DetailViewModel;
+import com.example.movie_app.viewmodel.DetailViewModelFactory;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -40,16 +47,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.example.movie_app.constants.Constants.MOVIE_ID;
+import static com.example.movie_app.constants.Constants.OVERVIEW;
+import static com.example.movie_app.constants.Constants.POSTER_PATH;
+import static com.example.movie_app.constants.Constants.RATING;
+import static com.example.movie_app.constants.Constants.RELEASE_DATE;
+import static com.example.movie_app.constants.Constants.TITLE;
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
 public class MovieDetailActivity extends AppCompatActivity {
-
-    public static final String TITLE = "TITLE";
-    public static final String OVERVIEW = "OVERVIEW";
-    public static final String RELEASE_DATE = "RELEASE_DATE";
-    public static final String RATING = "RATING";
-    public static final String POSTER_PATH = "POSTER_PATH";
-    public static final String MOVIE_ID = "MOVIE_ID";
 
     // Context
     Context mContext;
@@ -80,17 +86,18 @@ public class MovieDetailActivity extends AppCompatActivity {
     MovieReviewAdapter movieReviewAdapter;
 
     // RVs
+    RecyclerView.LayoutManager mLayoutManager;
     RecyclerView mMovieTrailerRecyclerView;
     RecyclerView mMovieReviewRecyclerView;
 
-    private DetailViewModel mDetailViewModel;
-
+    private Database mDb;
 
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(R.layout.activity_detail);
         mContext = this;
+        mDb = Database.getInstance(getApplicationContext());
 
         // Get views
         mMiniPoster = findViewById(R.id.movie_detail_mini_poster);
@@ -99,8 +106,13 @@ public class MovieDetailActivity extends AppCompatActivity {
         mMovieRating = findViewById(R.id.movie_detail_rating);
         mMovieOverview = findViewById(R.id.movie_detail_overview);
         mFavoriteBtn = findViewById(R.id.movie_detail_add_to_fav);
+        mLayoutManager = new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false);
         mMovieTrailerRecyclerView = findViewById(R.id.movie_trailer_recycler_view);
+        mMovieTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+        mMovieTrailerRecyclerView.setAdapter(new MovieTrailerAdapter(null));
         mMovieReviewRecyclerView = findViewById(R.id.movie_reviews_recycler_view);
+        mMovieReviewRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+        mMovieReviewRecyclerView.setAdapter(new MovieReviewAdapter(null));
 
         // Extra intent data
         Bundle b = getIntent().getExtras();
@@ -112,9 +124,6 @@ public class MovieDetailActivity extends AppCompatActivity {
         mMovieOverviewString = b.getString(OVERVIEW);
         mPosterPathString = b.getString(POSTER_PATH);
         Long movieId = b.getLong(MOVIE_ID);
-
-        // Get instance of favorite db
-        mDetailViewModel = ViewModelProviders.of(this).get(DetailViewModel.class);
 
         // Get http client
         mApiInterface = ApiClient.getClient(this).create(ApiInterface.class);
@@ -128,8 +137,30 @@ public class MovieDetailActivity extends AppCompatActivity {
         // Network data
         setDetailUI();
 
-        // Favorite btn
-        setFavoriteBtn();
+        // Listen for fav changes
+        initFavoriteBtn();
+
+        // Favorite btn setup
+        mFavoriteBtn.setOnCheckedChangeListener((compoundButton, isChecked) -> {
+            compoundButton.startAnimation(getScaleAnimation());
+
+            // Favorite btn click listener
+            FavoriteEntity favorite = new FavoriteEntity(
+                    mMovieId,
+                    mMovieTitleString,
+                    mPosterPathString,
+                    mMovieRatingString,
+                    mMovieOverviewString,
+                    mMovieReleaseDateString);
+            if (isChecked) {
+                mFavoriteBtn.setChecked(true);
+                AppExecutors.getExecutorInstance().getDiskIO().execute(() -> runOnUiThread(() -> mDb.favoriteDao().insertFavorite(favorite)));
+            } else  {
+                mFavoriteBtn.setChecked(false);
+                AppExecutors.getExecutorInstance().getDiskIO().execute(() -> runOnUiThread(() -> mDb.favoriteDao().deleteFavorite(favorite)));
+            }
+        });
+
 
         // toolbar setup
         Toolbar mToolbar = findViewById(R.id.toolbar_detail);
@@ -159,9 +190,10 @@ public class MovieDetailActivity extends AppCompatActivity {
                     return;
                 }
                 mTrailers = result.videos;
-                movieTrailerAdapter = new MovieTrailerAdapter(mTrailers);
-                mMovieTrailerRecyclerView.setAdapter(movieTrailerAdapter);
-                mMovieTrailerRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    movieTrailerAdapter = new MovieTrailerAdapter(mTrailers);
+                    mMovieTrailerRecyclerView.setAdapter(movieTrailerAdapter);
+                });
             }
 
             @Override
@@ -181,9 +213,12 @@ public class MovieDetailActivity extends AppCompatActivity {
                     return;
                 }
                 mReviews = result.reviews;
-                movieReviewAdapter = new MovieReviewAdapter(mReviews);
-                mMovieReviewRecyclerView.setAdapter(movieReviewAdapter);
-                mMovieReviewRecyclerView.setLayoutManager(new LinearLayoutManager(mContext, RecyclerView.HORIZONTAL, false));
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    System.out.println("Omer -> before review data set");
+                    movieReviewAdapter = new MovieReviewAdapter(mReviews);
+                    mMovieReviewRecyclerView.setAdapter(movieReviewAdapter);
+                    System.out.println("Omer -> after review data set");
+                });
             }
 
             @Override
@@ -191,67 +226,6 @@ public class MovieDetailActivity extends AppCompatActivity {
                 call.cancel();
             }
         });
-    }
-
-    private void setFavoriteBtn() {
-        AppExecutors.getExecutorInstance().getDiskIO().execute(() -> {
-            List<FavoriteEntity> favs = mDetailViewModel.loadFavorites().getValue();
-
-            if (favs != null) {
-                for (FavoriteEntity fav: favs) {
-                    System.out.println("Omer -> found fav: " + fav.getTitle());
-                }
-            } else {
-                System.out.println("Omer -> found 0000 favs!");
-            }
-        });
-
-        // Query room db for favorite
-        AppExecutors.getExecutorInstance().getDiskIO().execute(() -> {
-            System.out.println("Omer -> query by title: " + mMovieTitleString + " id: " + mMovieId);
-            @Nullable FavoriteEntity favoriteEntity1 = mDetailViewModel.getFavoriteById(mMovieId).getValue();
-            if (favoriteEntity1 == null) {
-                this.runOnUiThread(() -> mFavoriteBtn.setChecked(false));
-            } else {
-                this.runOnUiThread(() -> mFavoriteBtn.setChecked(true));
-            }
-        });
-
-        // Set favorite btn animation
-        mFavoriteBtn.setOnCheckedChangeListener((compoundButton, isChecked) -> {
-            ScaleAnimation scaleAnimation = new ScaleAnimation(
-                    0.7f,
-                    1.0f,
-                    0.7f,
-                    1.0f,
-                    Animation.RELATIVE_TO_SELF,
-                    0.7f,
-                    Animation.RELATIVE_TO_SELF,
-                    0.7f
-            );
-            scaleAnimation.setDuration(500);
-            BounceInterpolator bounceInterpolator = new BounceInterpolator();
-            scaleAnimation.setInterpolator(bounceInterpolator);
-            compoundButton.startAnimation(scaleAnimation);
-
-            // Favorite btn click listener
-            FavoriteEntity favorite = new FavoriteEntity(
-                    mMovieId,
-                    mMovieTitleString,
-                    mPosterPathString,
-                    mMovieRatingString,
-                    mMovieOverviewString,
-                    mMovieReleaseDateString);
-            if (isChecked) {
-                mDetailViewModel.addFavorite(favorite);
-                Toast.makeText(this, "Added to favorites!", Toast.LENGTH_SHORT).show();
-            } else  {
-                mDetailViewModel.removeFavorite(favorite);
-                Toast.makeText(this, "Removed from favorites", Toast.LENGTH_SHORT).show();
-            }
-            // TODO: send to home with favorite flags
-        });
-
     }
 
     private void setDetailUI() {
@@ -283,5 +257,39 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         // Set overview
         mMovieOverview.setText(mMovieOverviewString);
+    }
+
+    private ScaleAnimation getScaleAnimation() {
+        ScaleAnimation scaleAnimation = new ScaleAnimation(
+                0.7f,
+                1.0f,
+                0.7f,
+                1.0f,
+                Animation.RELATIVE_TO_SELF,
+                0.7f,
+                Animation.RELATIVE_TO_SELF,
+                0.7f
+        );
+        scaleAnimation.setDuration(500);
+        BounceInterpolator bounceInterpolator = new BounceInterpolator();
+        scaleAnimation.setInterpolator(bounceInterpolator);
+        return scaleAnimation;
+    }
+
+    private void initFavoriteBtn() {
+        DetailViewModelFactory factory =
+                new DetailViewModelFactory(mDb, mMovieId);
+        final DetailViewModel detailViewModel = new ViewModelProvider(this, factory).get(DetailViewModel.class);
+        detailViewModel.getFavorite().observe(this, new Observer<FavoriteEntity>() {
+            @Override
+            public void onChanged(FavoriteEntity favoriteEntity) {
+                detailViewModel.getFavorite().removeObserver(this);
+                if (favoriteEntity == null) {
+                    mFavoriteBtn.setChecked(false);
+                } else {
+                    mFavoriteBtn.setChecked(true);
+                }
+            }
+        });
     }
 }
