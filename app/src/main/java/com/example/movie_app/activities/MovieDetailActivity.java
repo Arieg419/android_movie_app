@@ -11,14 +11,11 @@ import android.view.animation.ScaleAnimation;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -161,13 +158,8 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
         });
 
-
         // toolbar setup
-        Toolbar mToolbar = findViewById(R.id.toolbar_detail);
-        setSupportActionBar(mToolbar);
         showToolbarBackButton();
-        mToolbar.setTitleMarginStart(0);
-        mToolbar.setNavigationOnClickListener(view -> finish());
         Objects.requireNonNull(getSupportActionBar()).setTitle(b.getString(TITLE));
 
     }
@@ -178,7 +170,6 @@ public class MovieDetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
     }
-
 
     private void fetchTrailerData(Call<MovieVideosModel> call) {
         // Async request with callback invocation
@@ -214,10 +205,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                 }
                 mReviews = result.reviews;
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    System.out.println("Omer -> before review data set");
                     movieReviewAdapter = new MovieReviewAdapter(mReviews);
                     mMovieReviewRecyclerView.setAdapter(movieReviewAdapter);
-                    System.out.println("Omer -> after review data set");
                 });
             }
 

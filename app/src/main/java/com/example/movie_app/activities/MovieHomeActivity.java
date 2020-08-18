@@ -1,16 +1,12 @@
 package com.example.movie_app.activities;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movie_app.R;
@@ -31,9 +27,7 @@ public class MovieHomeActivity extends AppCompatActivity {
 
     private ApiInterface mApiInterface;
     private MovieHomeAdapter mMovieHomeAdapter;
-    private ArrayList<PopularMoviesModel.Result> mMovies;
     private RecyclerView mRecyclerView;
-    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,34 +36,25 @@ public class MovieHomeActivity extends AppCompatActivity {
 
         // View refs
         mRecyclerView = findViewById(R.id.movies_home_recycler_view);
-        mRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
-        mRecyclerView.setAdapter(new MovieHomeAdapter(null));
-        mToolbar = findViewById(R.id.toolbar);
-
-        // Toolbar init
-        setSupportActionBar(mToolbar);
 
         // Fetch data
+        ArrayList<PopularMoviesModel.Result> movies = new ArrayList<>();
+        mMovieHomeAdapter = new MovieHomeAdapter(this, movies, mRecyclerView);
+        mRecyclerView.setAdapter(mMovieHomeAdapter);
+
         mApiInterface = ApiClient.getClient(this).create(ApiInterface.class);
         fetchMovieData(mApiInterface.doGetPopularMovieList());
-        loadFavoriteMovies();
-    }
-
-    public void setMovieGridAdapter(ArrayList<PopularMoviesModel.Result> movies) {
-        mMovieHomeAdapter = new MovieHomeAdapter(movies);
-        mRecyclerView.setAdapter(mMovieHomeAdapter);
     }
 
     private void loadFavoriteMovies() {
         HomeViewModel viewModel = ViewModelProviders.of(this).get(HomeViewModel.class);
         viewModel.getFavorites().observe(this, favorites -> {
-            System.out.println("Omer -> observed db change");
             ArrayList<PopularMoviesModel.Result> updatedFavorites = new ArrayList<>();
             if (favorites == null) {
-                mMovies = updatedFavorites;
+                mMovieHomeAdapter.clear();
                 return;
             }
-            System.out.println("Omer -> found " + favorites.size() + " favorites");
+
             for (FavoriteEntity f: favorites) {
                 PopularMoviesModel.Result res = new PopularMoviesModel.Result();
                 String voteAvg = f.getVoteAverage();
@@ -84,28 +69,23 @@ public class MovieHomeActivity extends AppCompatActivity {
                 res.releaseDate = f.getReleaseDate();
                 updatedFavorites.add(res);
             }
-            mMovies = updatedFavorites;
+            mMovieHomeAdapter.addAll(updatedFavorites);
         });
     }
 
     public void sortByFavorite() {
+        mMovieHomeAdapter.clear();
         loadFavoriteMovies();
-        updateAdapter();
     }
 
     public void sortByRating() {
+        mMovieHomeAdapter.clear();
         fetchMovieData(mApiInterface.doGetTopRatedMovieList());
-        updateAdapter();
     }
 
     public void sortByTitle() {
+        mMovieHomeAdapter.clear();
         fetchMovieData(mApiInterface.doGetPopularMovieList());
-        updateAdapter();
-    }
-
-    private void updateAdapter() {
-        setMovieGridAdapter(mMovies);
-        mMovieHomeAdapter.notifyDataSetChanged();
     }
 
     private void fetchMovieData(Call<PopularMoviesModel> call) {
@@ -117,10 +97,8 @@ public class MovieHomeActivity extends AppCompatActivity {
                 if (resource == null) {
                     return;
                 }
-                mMovies = (ArrayList<PopularMoviesModel.Result>) resource.results;
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    setMovieGridAdapter(mMovies);
-                });
+                System.out.println("Omer moves is " +resource.results.size());
+                mMovieHomeAdapter.addAll(resource.results);
             }
 
             @Override

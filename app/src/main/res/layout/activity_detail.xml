@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     tools:context=".activities.MovieHomeActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/toolbar_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ToolbarTheme"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
     <include layout="@layout/movie_detail" />
 
 </RelativeLayout>
