@@ -49,7 +49,6 @@ public class MovieHomeActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             // Fetch data from network
-            System.out.println("Omer -> onSaveInstance null...");
             mApiInterface = ApiClient.getClient(this).create(ApiInterface.class);
             fetchMovieData(mApiInterface.doGetPopularMovieList());
             mHomeState = Constants.HomeState.POPULAR;
@@ -57,7 +56,6 @@ public class MovieHomeActivity extends AppCompatActivity {
         }
 
        // Populate UI from Bundle
-        System.out.println("Omer -> onSaveInstance data...");
         setTitle(savedInstanceState.getString(Constants.SCREEN_TITLE));
         mMovies = savedInstanceState.getParcelableArrayList(Constants.MOVIES);
         mMovieHomeAdapter.clear();
@@ -92,7 +90,6 @@ public class MovieHomeActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle state) {
-        System.out.println("Omer -> onSaveInstance called...");
         super.onSaveInstanceState(state);
         state.putParcelableArrayList(Constants.MOVIES, mMovies);
         state.putString(Constants.SCREEN_TITLE, getTitle().toString());

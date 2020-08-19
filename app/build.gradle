@@ -53,7 +53,7 @@ dependencies {
     annotationProcessor "androidx.room:room-compiler:$room_version"
 
     // Room: debug room state
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
+//    debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 
 
     // Testing
