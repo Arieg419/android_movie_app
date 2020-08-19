@@ -32,7 +32,7 @@ import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.ViewHolder>{
     Context mContext;
     RecyclerView mRecyclerView;
-    List<PopularMoviesModel.Result> mPopularMovies;
+    List<PopularMoviesModel> mPopularMovies;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public View itemView;
@@ -50,7 +50,7 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
         }
     }
 
-    public MovieHomeAdapter(Context context, List<PopularMoviesModel.Result> popularMovies, RecyclerView rv) {
+    public MovieHomeAdapter(Context context, List<PopularMoviesModel> popularMovies, RecyclerView rv) {
         super();
         mPopularMovies = popularMovies;
         mRecyclerView = rv;
@@ -75,7 +75,7 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        PopularMoviesModel.Result movie = mPopularMovies.get(position);
+        PopularMoviesModel movie = mPopularMovies.get(position);
         holder.movieId = movie.id;
         holder.movieTitle.setText(movie.title);
         holder.movieRating.setText(Double.toString(movie.voteAverage));
@@ -96,7 +96,7 @@ public class MovieHomeAdapter extends RecyclerView.Adapter<MovieHomeAdapter.View
         });
     }
 
-    public void addAll(List<PopularMoviesModel.Result> movies) {
+    public void addAll(List<PopularMoviesModel> movies) {
         mPopularMovies.addAll(movies);
         notifyDataSetChanged();
     }

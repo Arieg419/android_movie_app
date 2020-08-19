@@ -26,9 +26,9 @@ import static com.example.movie_app.constants.Constants.RELEASE_DATE;
 import static com.example.movie_app.constants.Constants.TITLE;
 import static com.example.movie_app.utils.Utils.getMovieDetailPosterPath;
 
-public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
+public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel> {
 
-    public MovieHomeAdapter(Activity context, ArrayList<PopularMoviesModel.Result> popularMovies) {
+    public MovieHomeAdapter(Activity context, ArrayList<PopularMoviesModel> popularMovies) {
         super(context, 0, popularMovies);
     }
 
@@ -44,7 +44,7 @@ public class MovieHomeAdapter extends ArrayAdapter<PopularMoviesModel.Result> {
         }
 
         // Get current movie
-        PopularMoviesModel.Result currentMovie = getItem(position);
+        PopularMoviesModel currentMovie = getItem(position);
         assert(currentMovie != null);
 
         // Set movie title

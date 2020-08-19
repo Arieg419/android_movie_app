@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateFormat;
+import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.ScaleAnimation;
@@ -13,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -122,6 +122,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         mPosterPathString = b.getString(POSTER_PATH);
         Long movieId = b.getLong(MOVIE_ID);
 
+        // Actionbar setup
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(b.getString(TITLE));
+
         // Get http client
         mApiInterface = ApiClient.getClient(this).create(ApiInterface.class);
 
@@ -157,17 +161,17 @@ public class MovieDetailActivity extends AppCompatActivity {
                 AppExecutors.getExecutorInstance().getDiskIO().execute(() -> runOnUiThread(() -> mDb.favoriteDao().deleteFavorite(favorite)));
             }
         });
-
-        // toolbar setup
-        showToolbarBackButton();
-        Objects.requireNonNull(getSupportActionBar()).setTitle(b.getString(TITLE));
-
     }
 
-    public void showToolbarBackButton() {
-        if (getSupportActionBar() != null){
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
