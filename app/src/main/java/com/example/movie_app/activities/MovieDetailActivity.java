@@ -155,10 +155,12 @@ public class MovieDetailActivity extends AppCompatActivity {
                     mMovieReleaseDateString);
             if (isChecked) {
                 mFavoriteBtn.setChecked(true);
-                AppExecutors.getExecutorInstance().getDiskIO().execute(() -> runOnUiThread(() -> mDb.favoriteDao().insertFavorite(favorite)));
+                AppExecutors.getExecutorInstance().getDiskIO().execute(() -> {
+                   mDb.favoriteDao().insertFavorite(favorite);
+                });
             } else  {
                 mFavoriteBtn.setChecked(false);
-                AppExecutors.getExecutorInstance().getDiskIO().execute(() -> runOnUiThread(() -> mDb.favoriteDao().deleteFavorite(favorite)));
+                AppExecutors.getExecutorInstance().getDiskIO().execute(() -> mDb.favoriteDao().deleteFavorite(favorite));
             }
         });
     }

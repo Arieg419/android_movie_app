@@ -22,7 +22,6 @@ public abstract class Database extends RoomDatabase {
                Log.d(LOG_TAG, "Creating new db instance");
                sInstance = Room.databaseBuilder(context.getApplicationContext(), Database.class, Database.DATABASE_NAME)
                        .fallbackToDestructiveMigration()
-                       .allowMainThreadQueries()
                        .build();
            }
        }
